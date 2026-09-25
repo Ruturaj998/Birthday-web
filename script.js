@@ -97,12 +97,18 @@ function popBalloon(balloon, event) {
   // Update HUD
   const hudProgress = document.getElementById('hud-progress');
   const hudCounter = document.getElementById('hud-counter');
+  const hudTarget = document.getElementById('hud-target');
   if (hudProgress) {
     const pVal = Math.min(poppedCount, CONFIG.BALLOON_TARGET);
     hudProgress.style.width = `${(pVal / CONFIG.BALLOON_TARGET) * 100}%`;
   }
   if (hudCounter) {
-    hudCounter.innerText = `${poppedCount}/${CONFIG.BALLOON_TARGET}`;
+    if (hudTarget) {
+      hudCounter.innerText = poppedCount;
+      hudTarget.innerText = CONFIG.BALLOON_TARGET;
+    } else {
+      hudCounter.innerText = `${poppedCount}/${CONFIG.BALLOON_TARGET}`;
+    }
   }
 
   // Check 5 pops unlock
@@ -208,6 +214,12 @@ function createBalloons() {
   }
 }
 createBalloons();
+
+// Initialize HUD target dynamically from CONFIG
+const hudTargetEl = document.getElementById('hud-target');
+if (hudTargetEl) {
+  hudTargetEl.innerText = CONFIG.BALLOON_TARGET;
+}
 
 /* ==========================================================================
    CONFETTI & PARTICLE CANVAS SYSTEM (Twinkling Stars & Pastel Sparkles)

@@ -259,6 +259,55 @@ h1, h2, h3, h4 {
   justify-content: center;
 }
 
+/* Primary Button / Celebrate Button */
+.primary-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.05rem;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition-smooth);
+  border: none;
+  outline: none;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(201, 125, 139, 0.35);
+  max-width: 100%;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.primary-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 10px 25px rgba(201, 125, 139, 0.45);
+  filter: brightness(1.05);
+}
+
+.primary-btn:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(201, 125, 139, 0.3);
+}
+
+.primary-btn:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 4px rgba(201, 125, 139, 0.25), 0 6px 20px rgba(201, 125, 139, 0.35);
+}
+
+@media (max-width: 768px) {
+  .primary-btn {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+
 /* Glassmorphism Cards */
 .glass {
   background: var(--card-bg);
