@@ -1033,72 +1033,75 @@ const TARGET_DATE = new Date(CONFIG.BIRTHDAY);
 let countdownInterval = null;
 
 function pad(value) {
-    return String(value).padStart(2, "0");
+    if (isNaN(value)) return "00";
+    return String(Math.max(0, value)).padStart(2, "0");
 }
 
 function updateCountdown() {
-
     const now = new Date();
-
     const difference = TARGET_DATE - now;
 
-    if (difference <= 0) {
-
-        clearInterval(countdownInterval);
-
-        if (countdownElements.lockScreen) {
-            countdownElements.lockScreen.style.display = "none";
+    if (isNaN(difference) || difference <= 0) {
+        if (countdownInterval) {
+            clearInterval(countdownInterval);
+            countdownInterval = null;
         }
 
-        if (countdownElements.countdownContainer) {
-            countdownElements.countdownContainer.innerHTML =
-                "<h2>🎉 Happy Birthday Sriyaa! 🎉</h2>";
-        }
+        // Set to exactly 00 to prevent negatives and stop cleanly
+        if (countdownElements.hero.days) countdownElements.hero.days.textContent = "00";
+        if (countdownElements.hero.hours) countdownElements.hero.hours.textContent = "00";
+        if (countdownElements.hero.minutes) countdownElements.hero.minutes.textContent = "00";
+        if (countdownElements.hero.seconds) countdownElements.hero.seconds.textContent = "00";
 
+        if (countdownElements.lock.hours) countdownElements.lock.hours.textContent = "00";
+        if (countdownElements.lock.minutes) countdownElements.lock.minutes.textContent = "00";
+        if (countdownElements.lock.seconds) countdownElements.lock.seconds.textContent = "00";
+
+        if (difference <= 0) {
+            if (countdownElements.lockScreen) {
+                countdownElements.lockScreen.style.display = "none";
+            }
+            if (countdownElements.countdownContainer) {
+                countdownElements.countdownContainer.innerHTML =
+                    "<h2>🎉 Happy Birthday Sriyaa! 🎉</h2>";
+            }
+        }
         return;
     }
 
-    const totalSeconds = Math.floor(difference / 1000);
-
+    const totalSeconds = Math.max(0, Math.floor(difference / 1000));
     const days = Math.floor(totalSeconds / 86400);
-
     const hours = Math.floor((totalSeconds % 86400) / 3600);
-
     const minutes = Math.floor((totalSeconds % 3600) / 60);
-
     const seconds = totalSeconds % 60;
 
     if (countdownElements.hero.days)
         countdownElements.hero.days.textContent = pad(days);
-
     if (countdownElements.hero.hours)
         countdownElements.hero.hours.textContent = pad(hours);
-
     if (countdownElements.hero.minutes)
         countdownElements.hero.minutes.textContent = pad(minutes);
-
     if (countdownElements.hero.seconds)
         countdownElements.hero.seconds.textContent = pad(seconds);
 
     const totalHours = Math.floor(totalSeconds / 3600);
-
     if (countdownElements.lock.hours)
         countdownElements.lock.hours.textContent = pad(totalHours);
-
     if (countdownElements.lock.minutes)
         countdownElements.lock.minutes.textContent = pad(minutes);
-
     if (countdownElements.lock.seconds)
         countdownElements.lock.seconds.textContent = pad(seconds);
-
 }
 
 function startCountdown() {
-
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
     updateCountdown();
-
-    countdownInterval = setInterval(updateCountdown, 1000);
-
+    // Only start interval if there is time remaining
+    if (TARGET_DATE - new Date() > 0) {
+        countdownInterval = setInterval(updateCountdown, 1000);
+    }
 }
 
 startCountdown();
