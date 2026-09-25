@@ -50,7 +50,7 @@
   </div>
 
   <!-- Custom Background Canvas for Confetti & Stars -->
-  <canvas id="effects-canvas"></canvas>
+  <canvas id="effects-canvas" aria-label="Decorative confetti and particle effects" role="img"></canvas>
 
   <!-- Sound Toggle & Theme Mode Toggle floating controls -->
   <div class="floating-controls">
@@ -90,6 +90,26 @@
         </div>
       </div>
 
+      <!-- Balloon Pop HUD -->
+      <div class="balloon-hud" id="balloon-hud">
+        <span class="hud-label">🎈 Pop balloons for a surprise!</span>
+        <div class="hud-progress-wrapper">
+          <div class="hud-progress-bar">
+            <div class="hud-progress" id="hud-progress"></div>
+          </div>
+          <span class="hud-counter"><span id="hud-counter">0</span>/5</span>
+        </div>
+      </div>
+      
+      <h1 class="hero-title">Happy <span class="highlight">Birthday</span>!</h1>
+      <p class="hero-intro">Wishing you a day filled with love, joy, and unforgettable moments.</p>
+      
+      <div class="hero-buttons">
+        <button id="celebrate-btn" class="primary-btn">Celebrate Now</button>
+      </div>
+    </div>
+  </header>
+
   <!-- Heartfelt Message & Letter Section -->
   <section class="message-section" id="tribute">
     <div class="container">
@@ -120,6 +140,7 @@
         <button class="activity-tab-button" data-target="wishes" type="button" role="tab" aria-selected="false">Wishing Well</button>
         <button class="activity-tab-button" data-target="fun" type="button" role="tab" aria-selected="false">Interactive</button>
       </div>
+    </div>
   </section>
 
   <!-- Memory Polaroid Gallery -->
@@ -136,84 +157,84 @@
         <!-- Card 1 -->
         <div class="polaroid-card" data-index="0">
           <div class="polaroid-img-wrapper">
-            <img src="1.jpeg" alt="Memory 1" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="1.jpeg" alt="Golden Days" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Golden Days ✨</div>
         </div>
         <!-- Card 2 -->
         <div class="polaroid-card" data-index="1">
           <div class="polaroid-img-wrapper">
-            <img src="2.jpeg" alt="Memory 2" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="2.jpeg" alt="Glowing in the nights" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Glowing in the nights 🌅</div>
         </div>
         <!-- Card 3 -->
         <div class="polaroid-card" data-index="2">
           <div class="polaroid-img-wrapper">
-            <img src="3.jpeg" alt="Memory 3" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="3.jpeg" alt="Slaying" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Slaying 🤍</div>
         </div>
         <!-- Card 4 -->
         <div class="polaroid-card" data-index="3">
           <div class="polaroid-img-wrapper">
-            <img src="4.jpeg" alt="Memory 4" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="4.jpeg" alt="Drama Queen" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Drama Queen 📸</div>
         </div>
         <!-- Card 5 -->
         <div class="polaroid-card" data-index="4">
           <div class="polaroid-img-wrapper">
-            <img src="5.jpeg" alt="Memory 5" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="5.jpeg" alt="Radiant smiles" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Radiant smiles 🌸</div>
         </div>
         <!-- Card 6 -->
         <div class="polaroid-card" data-index="5">
           <div class="polaroid-img-wrapper">
-            <img src="6.jpeg" alt="Memory 6" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="6.jpeg" alt="So Shy and Adorable" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">So Shy and Adorable 🎒</div>
         </div>
         <!-- Card 7 -->
         <div class="polaroid-card" data-index="6">
           <div class="polaroid-img-wrapper">
-            <img src="7.jpeg" alt="Memory 7" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="7.jpeg" alt="Beautiful memory" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">🌸</div>
         </div>
         <!-- Card 8 -->
         <div class="polaroid-card" data-index="7">
           <div class="polaroid-img-wrapper">
-            <img src="8.jpeg" alt="Memory 8" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="8.jpeg" alt="Magical vibes" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Magical vibes ✨</div>
         </div>
         <!-- Card 9 -->
         <div class="polaroid-card" data-index="8">
           <div class="polaroid-img-wrapper">
-            <img src="9.jpeg" alt="Memory 9" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="9.jpeg" alt="True joy" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">True joy 🌟</div>
         </div>
         <!-- Card 10 -->
         <div class="polaroid-card" data-index="9">
           <div class="polaroid-img-wrapper">
-            <img src="10.jpeg" alt="Memory 10" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="10.jpeg" alt="Beside the waves" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Beside the waves 🌊</div>
         </div>
         <!-- Card 11 -->
         <div class="polaroid-card" data-index="10">
           <div class="polaroid-img-wrapper">
-            <img src="11.jpeg" alt="Memory 11" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="11.jpeg" alt="Happy thoughts" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Happy thoughts 🧸</div>
         </div>
         <!-- Card 12 -->
         <div class="polaroid-card" data-index="11">
           <div class="polaroid-img-wrapper">
-            <img src="12.jpeg" alt="Memory 12" loading="lazy"decoding="async" onerror="this.onerror=null; this.src='Pictures/placeholder.png';">
+            <img src="12.jpeg" alt="Here's to you!" loading="lazy" decoding="async">
           </div>
           <div class="polaroid-caption">Here's to you! 🥂</div>
         </div>
@@ -384,10 +405,9 @@
   <footer class="main-footer">
     <div class="container">
       <p class="made-with">Made with love, laughter, and coding magic for Sriyaa.</p>
-        <p class="birthday-message"></p>Happy Birthday, Sriyaa! 🌸</p>
-      <p class="copyright">&copy; 2026. All rights reserved.
-        <p class="credits">Crafted with ❤️ @Ruturaj :) </p>
-      </p>
+      <p class="birthday-message">Happy Birthday, Sriyaa! 🌸</p>
+      <p class="copyright">&copy; 2026. All rights reserved.</p>
+      <p class="credits">Crafted with ❤️ @Ruturaj :) </p>
     </div>
   </footer>
 

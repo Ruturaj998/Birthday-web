@@ -1,8 +1,19 @@
+(function () {
+  'use strict';
+
+  /* ==========================================================================
+     STORAGE CONSTANTS
+     ========================================================================== */
+  const STORAGE_KEYS = {
+    THEME: 'theme',
+    WISHES: 'birthday_wishes'
+  };
+
 /* ==========================================================================
    GLOBAL UTILITIES & STATE
    ========================================================================== */
 const state = {
-  theme: localStorage.getItem('theme') || 'light',
+  theme: localStorage.getItem(STORAGE_KEYS.THEME) || 'light',
   isMuted: true,
   currentPhotoIndex: 0,
   photos: []
@@ -10,7 +21,7 @@ const state = {
 
 // Colors for balloons and confetti
 const PALETTE = [
-  '#c97d8b', '#e6a17b', '#f0c38e', '#b46b78', '#f9dbbd', 
+  '#c97d8b', '#e6a17b', '#f0c38e', '#b46b78', '#f9dbbd',
   '#a3c3d9', '#d6e2e9', '#bcd4e6', '#c4e0e5', '#e8dbfc'
 ];
 
@@ -22,9 +33,9 @@ const themeIcon = themeToggleBtn.querySelector('i');
 
 function setTheme(theme) {
   document.body.setAttribute('data-theme', theme);
-  localStorage.setItem('theme', theme);
+  localStorage.setItem(STORAGE_KEYS.THEME, theme);
   state.theme = theme;
-  
+
   if (theme === 'dark') {
     themeIcon.className = 'fa-solid fa-sun';
   } else {
@@ -46,6 +57,7 @@ themeToggleBtn.addEventListener('click', () => {
    FLOATING BALLOONS & GLOWING LANTERNS GENERATOR
    ========================================================================== */
 let poppedCount = 0;
+let hasUnlockedSurprise = false;
 const BLESSINGS = [
   "Wishing you infinite smiles! 🌸",
   "May your day be filled with magic! ✨",
@@ -65,13 +77,13 @@ function popBalloon(balloon, event) {
 
   // Increment counter
   poppedCount++;
-  
+
   // Confetti burst of balloon's specific color
   const rect = balloon.getBoundingClientRect();
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
   const balloonColor = balloon.style.backgroundColor || '#ffc04d';
-  
+
   createColorConfettiBurst(x, y, balloonColor, 25);
 
   // Play chime pop synth sound
@@ -86,43 +98,44 @@ function popBalloon(balloon, event) {
   const hudProgress = document.getElementById('hud-progress');
   const hudCounter = document.getElementById('hud-counter');
   if (hudProgress) {
-    const pVal = Math.min(poppedCount, 5);
-    hudProgress.style.width = `${(pVal / 5) * 100}%`;
+    const pVal = Math.min(poppedCount, CONFIG.BALLOON_TARGET);
+    hudProgress.style.width = `${(pVal / CONFIG.BALLOON_TARGET) * 100}%`;
   }
   if (hudCounter) {
-    hudCounter.innerText = `${poppedCount}/5`;
+    hudCounter.innerText = `${poppedCount}/${CONFIG.BALLOON_TARGET}`;
   }
 
   // Check 5 pops unlock
-  if (  poppedCount >= CONFIG.BALLOON_TARGET) {
+  if (poppedCount >= CONFIG.BALLOON_TARGET && !hasUnlockedSurprise) {
+    hasUnlockedSurprise = true;
     setTimeout(unlockSurpriseSurprise, 600);
   }
 
-  // Spawn replacement balloon after 2s
+  // Spawn a single replacement balloon
   setTimeout(() => {
     balloon.remove();
-    createBalloons();
+    createSingleBalloon();
   }, 300);
 }
 
-function createBalloons() {
+function createSingleBalloon() {
   const container = document.getElementById('bubble-container');
   if (!container) return;
-  
+
   const balloon = document.createElement('div');
   balloon.className = 'balloon';
-  
+
   const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
   const size = Math.random() * 40 + 50;
   const left = Math.random() * 95; // slightly inset to prevent offscreen
-  
+
   balloon.style.backgroundColor = color;
   balloon.style.width = `${size}px`;
   balloon.style.height = `${size * 1.25}px`;
   balloon.style.left = `${left}%`;
   balloon.style.animationDelay = '0s';
   balloon.style.animationDuration = `${Math.random() * 10 + 10}s`;
-  
+
   // Centered white icon emoji
   const emojiSpan = document.createElement('span');
   emojiSpan.innerText = ['✨', '💖', '🌸', '🎂', '🎈', '🎁', '🧸'][Math.floor(Math.random() * 7)];
@@ -135,16 +148,16 @@ function createBalloons() {
   emojiSpan.style.color = '#ffffff';
   emojiSpan.style.textShadow = '0 1px 4px rgba(0,0,0,0.15)';
   balloon.appendChild(emojiSpan);
-  
+
   const string = document.createElement('div');
   string.className = 'balloon-string';
   balloon.appendChild(string);
-  
+
   // Click event
   balloon.addEventListener('click', (e) => {
     popBalloon(balloon, e);
   });
-  
+
   container.appendChild(balloon);
 }
 
@@ -152,24 +165,24 @@ function createBalloons() {
   const container = document.getElementById('bubble-container');
   if (!container) return;
 
-  const balloonCount = window.innerWidth < 768 ? 10 : 22;
+  const balloonCount = window.innerWidth < 768 ? CONFIG.MAX_BALLOONS_MOBILE : CONFIG.MAX_BALLOONS_DESKTOP;
   for (let i = 0; i < balloonCount; i++) {
     const balloon = document.createElement('div');
     balloon.className = 'balloon';
-    
+
     const color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    const size = Math.random() * 40 + 50; 
-    const left = Math.random() * 95; 
-    const delay = Math.random() * 8; 
-    const duration = Math.random() * 10 + 10; 
-    
+    const size = Math.random() * 40 + 50;
+    const left = Math.random() * 95;
+    const delay = Math.random() * 8;
+    const duration = Math.random() * 10 + 10;
+
     balloon.style.backgroundColor = color;
     balloon.style.width = `${size}px`;
     balloon.style.height = `${size * 1.25}px`;
     balloon.style.left = `${left}%`;
     balloon.style.animationDelay = `${delay}s`;
     balloon.style.animationDuration = `${duration}s`;
-    
+
     const emojiSpan = document.createElement('span');
     emojiSpan.innerText = ['✨', '💖', '🌸', '🎂', '🎈', '🎁', '🧸'][Math.floor(Math.random() * 7)];
     emojiSpan.style.position = 'absolute';
@@ -181,16 +194,16 @@ function createBalloons() {
     emojiSpan.style.color = '#ffffff';
     emojiSpan.style.textShadow = '0 1px 4px rgba(0,0,0,0.15)';
     balloon.appendChild(emojiSpan);
-    
+
     const string = document.createElement('div');
     string.className = 'balloon-string';
     balloon.appendChild(string);
-    
+
     // Add Click listener
     balloon.addEventListener('click', (e) => {
       popBalloon(balloon, e);
     });
-    
+
     container.appendChild(balloon);
   }
 }
@@ -213,8 +226,6 @@ function resizeCanvas() {
     initStars();
   }
 }
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
 
 // 1. Twinkling Stars (Dark Mode)
 class TwinkleStar {
@@ -226,12 +237,12 @@ class TwinkleStar {
     this.speed = Math.random() * 0.02 + 0.005;
     this.twinkleFactor = Math.random() * Math.PI * 2;
   }
-  
+
   update() {
     this.twinkleFactor += this.speed;
-    this.alpha = (Math.sin(this.twinkleFactor) + 1) / 2 * 0.8 + 0.2; 
+    this.alpha = (Math.sin(this.twinkleFactor) + 1) / 2 * 0.8 + 0.2;
   }
-  
+
   draw() {
     ctx.save();
     ctx.globalAlpha = this.alpha;
@@ -255,19 +266,19 @@ class ShootingStar {
   constructor() {
     this.reset();
   }
-  
+
   reset() {
     this.x = Math.random() * canvas.width;
-    this.y = Math.random() * (canvas.height * 0.4); 
+    this.y = Math.random() * (canvas.height * 0.4);
     this.len = Math.random() * 60 + 30;
     this.speed = Math.random() * 8 + 5;
-    this.angle = Math.PI / 6; 
+    this.angle = Math.PI / 6;
     this.vx = Math.cos(this.angle) * this.speed;
     this.vy = Math.sin(this.angle) * this.speed;
     this.opacity = 1;
     this.active = true;
   }
-  
+
   update() {
     this.x += this.vx;
     this.y += this.vy;
@@ -276,7 +287,7 @@ class ShootingStar {
       this.active = false;
     }
   }
-  
+
   draw() {
     ctx.save();
     ctx.globalAlpha = this.opacity;
@@ -296,36 +307,36 @@ class AmbientSparkle {
     this.x = Math.random() * canvas.width;
     this.y = canvas.height + 10;
     this.size = Math.random() * 8 + 4;
-    this.type = Math.random() < 0.4 ? 'heart' : 'sparkle'; 
+    this.type = Math.random() < 0.4 ? 'heart' : 'sparkle';
     this.color = PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    this.vy = -(Math.random() * 1.2 + 0.4); 
-    this.vx = Math.random() * 0.8 - 0.4; 
+    this.vy = -(Math.random() * 1.2 + 0.4);
+    this.vx = Math.random() * 0.8 - 0.4;
     this.opacity = Math.random() * 0.5 + 0.4;
     this.fadeSpeed = Math.random() * 0.004 + 0.002;
     this.phase = Math.random() * Math.PI * 2;
     this.weaveSpeed = Math.random() * 0.02 + 0.01;
   }
-  
+
   update() {
     this.y += this.vy;
     this.phase += this.weaveSpeed;
     this.x += Math.sin(this.phase) * 0.3;
     this.opacity -= this.fadeSpeed;
   }
-  
+
   draw() {
     ctx.save();
     ctx.globalAlpha = this.opacity;
     ctx.fillStyle = this.color;
-    
+
     if (this.type === 'heart') {
       const x = this.x;
       const y = this.y;
       const size = this.size;
       ctx.beginPath();
       ctx.moveTo(x, y);
-      ctx.bezierCurveTo(x - size/2, y - size/2, x - size, y + size/3, x, y + size);
-      ctx.bezierCurveTo(x + size, y + size/3, x + size/2, y - size/2, x, y);
+      ctx.bezierCurveTo(x - size / 2, y - size / 2, x - size, y + size / 3, x, y + size);
+      ctx.bezierCurveTo(x + size, y + size / 3, x + size / 2, y - size / 2, x, y);
       ctx.fill();
     } else {
       const x = this.x;
@@ -350,17 +361,17 @@ class ConfettiParticle {
     this.y = y;
     this.size = Math.random() * 6 + 4;
     this.color = customColor || PALETTE[Math.floor(Math.random() * PALETTE.length)];
-    
+
     if (isBurst) {
       const angle = Math.random() * Math.PI * 2;
       const speed = Math.random() * 8 + 3;
       this.vx = Math.cos(angle) * speed;
-      this.vy = Math.sin(angle) * speed - 2; 
+      this.vy = Math.sin(angle) * speed - 2;
     } else {
       this.vx = Math.random() * 2 - 1;
       this.vy = Math.random() * 2 + 1;
     }
-    
+
     this.rotation = Math.random() * 360;
     this.rotationSpeed = Math.random() * 4 - 2;
     this.opacity = 1;
@@ -371,7 +382,7 @@ class ConfettiParticle {
   update() {
     this.x += this.vx;
     this.y += this.vy;
-    this.vy += this.gravity; 
+    this.vy += this.gravity;
     this.rotation += this.rotationSpeed;
     this.opacity -= this.decay;
   }
@@ -387,7 +398,7 @@ class ConfettiParticle {
   }
 }
 
-function createConfettiBurst(x, y, count = 80) {
+function createConfettiBurst(x, y, count = CONFIG.PARTICLE_COUNT) {
   for (let i = 0; i < count; i++) {
     particles.push(new ConfettiParticle(x, y, true));
   }
@@ -407,7 +418,7 @@ function spawnAmbientConfetti() {
 
 function animateParticles() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  
+
   if (state.theme === 'dark') {
     if (stars.length === 0) {
       initStars();
@@ -416,7 +427,7 @@ function animateParticles() {
       s.update();
       s.draw();
     });
-    
+
     if (shootingStars.length < 2 && Math.random() < 0.004) {
       shootingStars.push(new ShootingStar());
     }
@@ -425,12 +436,12 @@ function animateParticles() {
       s.update();
       s.draw();
     });
-    
+
     ambientSparkles = [];
   } else {
     stars = [];
     shootingStars = [];
-    
+
     if (ambientSparkles.length < 30 && Math.random() < 0.06) {
       ambientSparkles.push(new AmbientSparkle());
     }
@@ -440,16 +451,19 @@ function animateParticles() {
       s.draw();
     });
   }
-  
+
   spawnAmbientConfetti();
   particles = particles.filter(p => p.opacity > 0 && p.y < canvas.height);
   particles.forEach(p => {
     p.update();
     p.draw();
   });
-  
+
   requestAnimationFrame(animateParticles);
 }
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 animateParticles();
 
 // Hook up Celebrate Button
@@ -459,9 +473,9 @@ if (celebrateBtn) {
     const rect = celebrateBtn.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
     const y = rect.top + rect.height / 2;
-    
+
     createConfettiBurst(x, y, 100);
-    
+
     if (!state.isMuted) {
       playFanfare();
     }
@@ -484,21 +498,21 @@ const MELODY = [
   [261.63, 400, 450], // to (C4)
   [349.23, 400, 450], // you (F4)
   [329.63, 800, 900], // , (E4)
-  
+
   [261.63, 300, 350], // Happy (C4)
   [261.63, 100, 150], // birth- (C4)
   [293.66, 400, 450], // day (D4)
   [261.63, 400, 450], // to (C4)
   [392.00, 400, 450], // you (G4)
   [349.23, 800, 900], // , (F4)
-  
+
   [261.63, 300, 350], // Happy (C4)
   [261.63, 100, 150], // birth- (C4)
   [523.25, 400, 450], // day (C5)
   [440.00, 400, 450], // dear (A4)
   [349.23, 400, 450], // srii- (F4)
   [329.63, 400, 450], // ya- (E4)
-  
+
   [466.16, 300, 350], // Hap- (Bb4)
   [466.16, 100, 150], // py (Bb4)
   [440.00, 400, 450], // birth- (A4)
@@ -518,34 +532,34 @@ function initAudio() {
 
 function playNote(freq, duration) {
   if (!audioCtx) return;
-  
+
   // Custom synthesizer graph for sweet music-box chiming sound
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
+
   osc.type = 'triangle'; // triangle gives soft, chime-like quality
   osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-  
+
   // Vibrato (Frequency Modulation) for richness
   const vibrato = audioCtx.createOscillator();
   const vibratoGain = audioCtx.createGain();
   vibrato.frequency.value = 6; // 6Hz speed
   vibratoGain.gain.value = freq * 0.015; // pitch bend depth
-  
+
   vibrato.connect(vibratoGain);
   vibratoGain.connect(osc.frequency);
   vibrato.start();
-  
+
   // Envelope for chime note (rapid attack, slow decay/release)
   gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
   gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05); // quick fade in
   gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration / 1000); // fade out
-  
+
   osc.connect(gainNode);
   gainNode.connect(audioCtx.destination);
-  
+
   osc.start();
-  
+
   setTimeout(() => {
     osc.stop();
     vibrato.stop();
@@ -557,28 +571,28 @@ function startMelodyLoop() {
   if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
-  
+
   function triggerNextNote() {
     if (state.isMuted) return;
-    
+
     const [freq, duration, delay] = MELODY[currentNoteIndex];
     playNote(freq, duration);
-    
+
     // Spawn floating music note particle
     if (typeof spawnMusicNoteParticle === 'function') {
       spawnMusicNoteParticle();
     }
-    
+
     // Pulse music button on note hits
     musicToggleBtn.style.transform = 'scale(1.2)';
     setTimeout(() => {
       musicToggleBtn.style.transform = 'scale(1)';
     }, 150);
-    
+
     currentNoteIndex = (currentNoteIndex + 1) % MELODY.length;
     musicInterval = setTimeout(triggerNextNote, delay);
   }
-  
+
   triggerNextNote();
 }
 
@@ -593,10 +607,10 @@ function playFanfare() {
   if (audioCtx.state === 'suspended') {
     audioCtx.resume();
   }
-  
+
   const now = audioCtx.currentTime;
   const chords = [349.23, 440.00, 523.25, 659.25]; // F Major 7 (arpeggiated)
-  
+
   chords.forEach((freq, idx) => {
     setTimeout(() => {
       playNote(freq, 600);
@@ -607,7 +621,7 @@ function playFanfare() {
 // Music Button Handler
 musicToggleBtn.addEventListener('click', () => {
   state.isMuted = !state.isMuted;
-  
+
   if (!state.isMuted) {
     musicIcon.className = 'fa-solid fa-volume-high';
     musicToggleBtn.setAttribute('title', 'Mute Music');
@@ -665,7 +679,7 @@ polaroidCards.forEach((card, idx) => {
     src: img.getAttribute('src'),
     caption: caption
   });
-  
+
   // Attach event listener
   card.addEventListener('click', () => {
     openLightbox(idx);
@@ -710,7 +724,7 @@ lightboxModal.addEventListener('click', (e) => {
 // Keyboard Navigation
 document.addEventListener('keydown', (e) => {
   if (!lightboxModal.classList.contains('active')) return;
-  
+
   if (e.key === 'Escape') closeLightbox();
   if (e.key === 'ArrowLeft') navigateLightbox(-1);
   if (e.key === 'ArrowRight') navigateLightbox(1);
@@ -819,7 +833,7 @@ async function getSavedWishes() {
   // 3. Fallback to LocalStorage
   isUsingLocalFallback = true;
   try {
-    const localWishes = localStorage.getItem('birthday_wishes');
+    const localWishes = localStorage.getItem(STORAGE_KEYS.WISHES);
     return localWishes ? JSON.parse(localWishes) : [];
   } catch (e) {
     console.error('Failed to parse local wishes:', e);
@@ -829,22 +843,26 @@ async function getSavedWishes() {
 
 function renderWish(wish, index) {
   const note = document.createElement('div');
-  
+
   // Pick sticky color and random rotation for realism
   const colorClass = NOTE_COLORS[index % NOTE_COLORS.length];
   const rot = (Math.random() * 8 - 4).toFixed(2); // rotation between -4deg and 4deg
-  
+
   note.className = `sticky-note ${colorClass}`;
   note.style.setProperty('--rotation', `${rot}deg`);
-  
+
   note.innerHTML = `
     <div>
-      <div class="sticky-avatar">${wish.avatar}</div>
-      <div class="sticky-msg">"${wish.message}"</div>
+      <div class="sticky-avatar"></div>
+      <div class="sticky-msg"></div>
     </div>
-    <div class="sticky-author">- ${wish.name}</div>
+    <div class="sticky-author"></div>
   `;
-  
+
+  note.querySelector('.sticky-avatar').textContent = wish.avatar;
+  note.querySelector('.sticky-msg').textContent = `"${wish.message}"`;
+  note.querySelector('.sticky-author').textContent = `- ${wish.name}`;
+
   wishBoard.appendChild(note);
 }
 
@@ -908,11 +926,11 @@ async function saveWish(newWish) {
 
   // Fallback to LocalStorage
   try {
-    const localWishes = localStorage.getItem('birthday_wishes');
+    const localWishes = localStorage.getItem(STORAGE_KEYS.WISHES);
     const wishes = localWishes ? JSON.parse(localWishes) : [];
     wishes.unshift({ ...newWish, timestamp: Date.now() });
-    localStorage.setItem('birthday_wishes', JSON.stringify(wishes));
-    
+    localStorage.setItem(STORAGE_KEYS.WISHES, JSON.stringify(wishes));
+
     if (!isUsingLocalFallback) {
       isUsingLocalFallback = true;
       showToast('Wish pinned! (Saved locally on your browser)', 'info');
@@ -945,11 +963,11 @@ if (wishForm) {
     const success = await saveWish(newWish);
     if (success) {
       await displayAllWishes();
-      
+
       // Reward User with confetti burst
       const rect = wishForm.getBoundingClientRect();
       createConfettiBurst(rect.left + rect.width / 2, rect.top, 80);
-      
+
       // Reset Form
       wishForm.reset();
     }
@@ -983,7 +1001,7 @@ async function deleteWishes() {
   }
 
   try {
-    localStorage.removeItem('birthday_wishes');
+    localStorage.removeItem(STORAGE_KEYS.WISHES);
     showToast('Wishes wall cleared successfully.', 'success');
     return true;
   } catch (e) {
@@ -1010,22 +1028,22 @@ if (clearBoardBtn) {
    ========================================================================== */
 
 const countdownElements = {
-    hero: {
-        days: document.getElementById("days"),
-        hours: document.getElementById("hours"),
-        minutes: document.getElementById("minutes"),
-        seconds: document.getElementById("seconds")
-    },
+  hero: {
+    days: document.getElementById("days"),
+    hours: document.getElementById("hours"),
+    minutes: document.getElementById("minutes"),
+    seconds: document.getElementById("seconds")
+  },
 
-    lock: {
-        hours: document.getElementById("lock-hours"),
-        minutes: document.getElementById("lock-minutes"),
-        seconds: document.getElementById("lock-seconds")
-    },
+  lock: {
+    hours: document.getElementById("lock-hours"),
+    minutes: document.getElementById("lock-minutes"),
+    seconds: document.getElementById("lock-seconds")
+  },
 
-    lockScreen: document.getElementById("lock-screen"),
+  lockScreen: document.getElementById("lock-screen"),
 
-    countdownContainer: document.getElementById("countdown-container")
+  countdownContainer: document.getElementById("countdown-container")
 };
 
 const TARGET_DATE = new Date(CONFIG.BIRTHDAY);
@@ -1033,78 +1051,83 @@ const TARGET_DATE = new Date(CONFIG.BIRTHDAY);
 let countdownInterval = null;
 
 function pad(value) {
-    if (isNaN(value)) return "00";
-    return String(Math.max(0, value)).padStart(2, "0");
+  if (isNaN(value)) return "00";
+  return String(Math.max(0, value)).padStart(2, "0");
 }
 
 function updateCountdown() {
-    const now = new Date();
-    const difference = TARGET_DATE - now;
+  const now = new Date();
+  const difference = TARGET_DATE - now;
 
-    if (isNaN(difference) || difference <= 0) {
-        if (countdownInterval) {
-            clearInterval(countdownInterval);
-            countdownInterval = null;
-        }
-
-        // Set to exactly 00 to prevent negatives and stop cleanly
-        if (countdownElements.hero.days) countdownElements.hero.days.textContent = "00";
-        if (countdownElements.hero.hours) countdownElements.hero.hours.textContent = "00";
-        if (countdownElements.hero.minutes) countdownElements.hero.minutes.textContent = "00";
-        if (countdownElements.hero.seconds) countdownElements.hero.seconds.textContent = "00";
-
-        if (countdownElements.lock.hours) countdownElements.lock.hours.textContent = "00";
-        if (countdownElements.lock.minutes) countdownElements.lock.minutes.textContent = "00";
-        if (countdownElements.lock.seconds) countdownElements.lock.seconds.textContent = "00";
-
-        if (difference <= 0) {
-            if (countdownElements.lockScreen) {
-                countdownElements.lockScreen.style.display = "none";
-            }
-            if (countdownElements.countdownContainer) {
-                countdownElements.countdownContainer.innerHTML =
-                    "<h2>🎉 Happy Birthday Sriyaa! 🎉</h2>";
-            }
-        }
-        return;
+  if (isNaN(difference) || difference <= 0) {
+    if (countdownInterval) {
+      clearInterval(countdownInterval);
+      countdownInterval = null;
     }
 
-    const totalSeconds = Math.max(0, Math.floor(difference / 1000));
-    const days = Math.floor(totalSeconds / 86400);
-    const hours = Math.floor((totalSeconds % 86400) / 3600);
-    const minutes = Math.floor((totalSeconds % 3600) / 60);
-    const seconds = totalSeconds % 60;
+    // Set to exactly 00 to prevent negatives and stop cleanly
+    if (countdownElements.hero.days) countdownElements.hero.days.textContent = "00";
+    if (countdownElements.hero.hours) countdownElements.hero.hours.textContent = "00";
+    if (countdownElements.hero.minutes) countdownElements.hero.minutes.textContent = "00";
+    if (countdownElements.hero.seconds) countdownElements.hero.seconds.textContent = "00";
 
-    if (countdownElements.hero.days)
-        countdownElements.hero.days.textContent = pad(days);
-    if (countdownElements.hero.hours)
-        countdownElements.hero.hours.textContent = pad(hours);
-    if (countdownElements.hero.minutes)
-        countdownElements.hero.minutes.textContent = pad(minutes);
-    if (countdownElements.hero.seconds)
-        countdownElements.hero.seconds.textContent = pad(seconds);
+    if (countdownElements.lock.hours) countdownElements.lock.hours.textContent = "00";
+    if (countdownElements.lock.minutes) countdownElements.lock.minutes.textContent = "00";
+    if (countdownElements.lock.seconds) countdownElements.lock.seconds.textContent = "00";
 
-    const totalHours = Math.floor(totalSeconds / 3600);
-    if (countdownElements.lock.hours)
-        countdownElements.lock.hours.textContent = pad(totalHours);
-    if (countdownElements.lock.minutes)
-        countdownElements.lock.minutes.textContent = pad(minutes);
-    if (countdownElements.lock.seconds)
-        countdownElements.lock.seconds.textContent = pad(seconds);
+    if (difference <= 0) {
+      if (countdownElements.lockScreen) {
+        countdownElements.lockScreen.classList.remove('active');
+      }
+      if (countdownElements.countdownContainer) {
+        countdownElements.countdownContainer.innerHTML =
+          "<h2>🎉 Happy Birthday Sriyaa! 🎉</h2>";
+      }
+    }
+    return;
+  }
+
+  const totalSeconds = Math.max(0, Math.floor(difference / 1000));
+  const days = Math.floor(totalSeconds / 86400);
+  const hours = Math.floor((totalSeconds % 86400) / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+
+  if (countdownElements.hero.days)
+    countdownElements.hero.days.textContent = pad(days);
+  if (countdownElements.hero.hours)
+    countdownElements.hero.hours.textContent = pad(hours);
+  if (countdownElements.hero.minutes)
+    countdownElements.hero.minutes.textContent = pad(minutes);
+  if (countdownElements.hero.seconds)
+    countdownElements.hero.seconds.textContent = pad(seconds);
+
+  const totalHours = Math.floor(totalSeconds / 3600);
+  if (countdownElements.lock.hours)
+    countdownElements.lock.hours.textContent = pad(totalHours);
+  if (countdownElements.lock.minutes)
+    countdownElements.lock.minutes.textContent = pad(minutes);
+  if (countdownElements.lock.seconds)
+    countdownElements.lock.seconds.textContent = pad(seconds);
 }
 
 function startCountdown() {
-    if (countdownInterval) {
-        clearInterval(countdownInterval);
-    }
-    updateCountdown();
-    // Only start interval if there is time remaining
-    if (TARGET_DATE - new Date() > 0) {
-        countdownInterval = setInterval(updateCountdown, 1000);
-    }
+  if (countdownInterval) {
+    clearInterval(countdownInterval);
+  }
+  updateCountdown();
+  // Only start interval if there is time remaining
+  if (TARGET_DATE - new Date() > 0) {
+    countdownInterval = setInterval(updateCountdown, 1000);
+  }
 }
 
 startCountdown();
+
+// Activate lock screen if birthday is still in the future
+if (TARGET_DATE - new Date() > 0 && countdownElements.lockScreen) {
+  countdownElements.lockScreen.classList.add('active');
+}
 /* ==========================================================================
    INTERACTIVE QUIZ SYSTEM
    ========================================================================== */
@@ -1122,19 +1145,19 @@ quizQuestions.forEach((card, qIndex) => {
   optButtons.forEach(btn => {
     btn.addEventListener('click', () => {
       if (quizCompleted) return;
-      
+
       const selectedOpt = parseInt(btn.getAttribute('data-opt'), 10);
       const correctOpt = QUIZ_ANSWERS[qIndex];
-      
+
       if (selectedOpt === correctOpt) {
         btn.classList.add('correct');
         if (!state.isMuted && audioCtx) {
           playNote(523.25, 200); // C5
           setTimeout(() => playNote(659.25, 300), 120); // E5
         }
-        
+
         optButtons.forEach(b => b.style.pointerEvents = 'none');
-        
+
         setTimeout(() => {
           advanceQuiz();
         }, 1200);
@@ -1143,7 +1166,7 @@ quizQuestions.forEach((card, qIndex) => {
         if (!state.isMuted && audioCtx) {
           playNote(220.00, 400); // Fail buzzer
         }
-        
+
         setTimeout(() => {
           btn.classList.remove('wrong');
         }, 800);
@@ -1155,18 +1178,18 @@ quizQuestions.forEach((card, qIndex) => {
 function advanceQuiz() {
   const activeCard = quizQuestions[currentQuizQuestion];
   if (activeCard) activeCard.classList.remove('active');
-  
+
   currentQuizQuestion++;
   const progressPercent = ((currentQuizQuestion / quizQuestions.length) * 100).toFixed(0);
   if (quizProgress) quizProgress.style.width = `${progressPercent}%`;
-  
+
   if (currentQuizQuestion < quizQuestions.length) {
     const nextCard = quizQuestions[currentQuizQuestion];
     if (nextCard) nextCard.classList.add('active');
   } else {
     quizCompleted = true;
     if (quizSuccessCard) quizSuccessCard.classList.add('active');
-    
+
     // Confetti rain!
     const rect = document.getElementById('quiz-container').getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -1174,7 +1197,7 @@ function advanceQuiz() {
     createConfettiBurst(x, y, 120);
     setTimeout(() => createConfettiBurst(x - 120, y - 40, 60), 300);
     setTimeout(() => createConfettiBurst(x + 120, y - 40, 60), 600);
-    
+
     showToast('🏆 Sriyaa Expert status unlocked! 🎉', 'success');
   }
 }
@@ -1187,9 +1210,9 @@ function restartQuiz() {
   quizCompleted = false;
   currentQuizQuestion = 0;
   if (quizProgress) quizProgress.style.width = '0%';
-  
+
   if (quizSuccessCard) quizSuccessCard.classList.remove('active');
-  
+
   quizQuestions.forEach((card, idx) => {
     card.classList.remove('active');
     const optButtons = card.querySelectorAll('.quiz-opt-btn');
@@ -1197,7 +1220,7 @@ function restartQuiz() {
       btn.classList.remove('correct', 'wrong');
       btn.style.pointerEvents = 'auto';
     });
-    
+
     if (idx === 0) card.classList.add('active');
   });
 }
@@ -1241,22 +1264,22 @@ function spawnMusicNoteParticle() {
   const rect = btn.getBoundingClientRect();
   const particle = document.createElement('span');
   particle.className = 'music-note-particle';
-  
+
   const notes = ['🎵', '🎶', '🎼', '✨', '💖', '🎹'];
   particle.innerText = notes[Math.floor(Math.random() * notes.length)];
-  
+
   const x = rect.left + rect.width / 2;
   const y = rect.top + rect.height / 2;
   particle.style.left = `${x}px`;
   particle.style.top = `${y}px`;
-  
+
   const dx = (Math.random() * 80 - 40).toFixed(0);
   const rot = (Math.random() * 60 - 30).toFixed(0);
   particle.style.setProperty('--dx', `${dx}px`);
   particle.style.setProperty('--rot', `${rot}deg`);
-  
+
   document.body.appendChild(particle);
-  
+
   setTimeout(() => {
     particle.remove();
   }, 2500);
@@ -1272,17 +1295,17 @@ cards.forEach(card => {
     const rect = card.getBoundingClientRect();
     const x = e.clientX - rect.left; // x coordinate inside element
     const y = e.clientY - rect.top;  // y coordinate inside element
-    
+
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    
+
     // Degrees rotation limits: -15deg to 15deg
     const rotateY = ((x - centerX) / centerX * 15).toFixed(2);
     const rotateX = (-(y - centerY) / centerY * 15).toFixed(2);
-    
+
     card.style.transform = `perspective(800px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.06) translateY(-8px)`;
   });
-  
+
   card.addEventListener('mouseleave', () => {
     // Reset rotation styles on mouse leave
     card.style.transform = '';
@@ -1298,18 +1321,18 @@ function playPopChime() {
     audioCtx.resume();
   }
   const now = audioCtx.currentTime;
-  
+
   // Create bubble pop synthesizer chimer
   const osc = audioCtx.createOscillator();
   const gainNode = audioCtx.createGain();
-  
+
   osc.type = 'sine';
   osc.frequency.setValueAtTime(320, now);
   osc.frequency.exponentialRampToValueAtTime(750, now + 0.1);
-  
+
   gainNode.gain.setValueAtTime(0.18, now);
   gainNode.gain.exponentialRampToValueAtTime(0.0001, now + 0.12);
-  
+
   osc.connect(gainNode);
   gainNode.connect(audioCtx.destination);
   osc.start(now);
@@ -1320,12 +1343,12 @@ function spawnFloatingBlessing(x, y) {
   const el = document.createElement('div');
   el.className = 'floating-blessing-text';
   el.innerText = BLESSINGS[Math.floor(Math.random() * BLESSINGS.length)];
-  
+
   el.style.left = `${x}px`;
   el.style.top = `${y}px`;
-  
+
   document.body.appendChild(el);
-  
+
   setTimeout(() => el.remove(), 3500);
 }
 
@@ -1344,7 +1367,7 @@ function unlockSurpriseSurprise() {
     modal.classList.add('active');
     modal.setAttribute('aria-hidden', 'false');
   }
-  
+
   showToast('🎁 Sibling Love surprise card unlocked! 🎉', 'success');
 }
 
@@ -1380,3 +1403,5 @@ if (surpriseCelebrateBtn) {
     showToast('🎂 Double Birthday Confetti Shower! 🎉', 'success');
   });
 }
+
+})();
